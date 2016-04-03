@@ -6,3 +6,7 @@
 ### NOTES TO Developers ###
 
 	note: test program in firefox browser
+	note: add source files (i.e. .py, .cpp, .java) to the src folder)
+	      add your source files to the Makefile to be complied to the bin folder
+	      keep files organized please
+	note: database is in the db folder	
