@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html ng-app="locationsApp"><!-- attaches this page to the associated Angular Module<!-->
+
+ <head>
+   <meta charset="utf-8" />
+   <title>390 User Locations</title>
+   <link data-require="bootstrap-css@3.1.1" data-semver="3.1.1" rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+   <script>document.write('<base href="' + document.location + '" />');</script>
+   <link rel="stylesheet" href="style.css" />
+   <script data-require="angular.js@1.2.x" src="https://code.angularjs.org/1.2.16/angular.js" data-semver="1.2.16"></script>
+   <script data-require="jquery@*" data-semver="2.0.3" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+   <script data-require="bootstrap@*" data-semver="3.1.1" src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+   <script src="../static/app.js"></script>
+ </head>
+ {% raw %}
+ <body ng-controller="LocationsCtrl"><!-- attaches the Angular controller LocationsCtrl to this section of the HTML so that we can bind data<!-->
+   <form>
+         <div class="form-group">
+           <input class="btn btn-default" type="submit" value="Refresh Users Automatically" ng-click="findLocations()" />
+         </div>
+       </form>
+
+   <p><h1>Showing users and their locations.<h1></p>
+    <div>
+          <div class="row">
+       <div class="col-xs-6" ng-repeat="users in place.users">
+         <div class="panel panel-primary">
+           <div class="panel-heading">
+             <h4><strong>{{ users.username }} is at {{ users.location }}</strong></h4>
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+ </body>
+ {% endraw %}
+</html>

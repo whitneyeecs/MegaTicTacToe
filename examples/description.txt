@@ -1,7 +1,0 @@
-description:
-
-the files in this floder are python examples from class
-
-they will not run becuase the librariers are not included.
-
-but are here for reference

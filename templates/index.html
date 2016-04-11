@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}390 App Form{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>Hello, {{ current_user.username }}!</h1>
+</div>
+
+{{ wtf.quick_form(form) }}
+
+<p>&nbsp;
+<div class="nav nav-tabs">
+    <ul class="nav nav-tabs">
+        <li>Users</li>
+           </ul>
+           <ul class="Locations">
+              {% for otheruser in otherusers %}
+               <li> {{ otheruser.username }} is at {{ otheruser.location }}</li>
+               {% endfor %}
+           </ul>
+
+</div>
+
+{% endblock %}
