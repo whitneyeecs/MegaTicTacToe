@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tic-Tac-2.0</title>
+
+    <style>
+      canvas {
+        border: 1px solid #000;
+        position: absolute;
+        margin: auto;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+    </style>
+    <script>
+
+    var canvas, ctx;
+    var data;
+    var player;
+    var zones = [];
+    var start_game = true;
+    var player_id = 1;
+  //  var prev_tile;
+  //  var prev_idx = -1;
+  //  var cur_tile = -1;
+
+    for (var i = 0; i < 9; ++i){
+      var zone = [];
+      zones.push(zone);
+    }
+
+    var cur_zone = -1;
+
+    window.onload = function main() {
+
+        canvas = document.createElement("canvas")
+        canvas.width = canvas.height = 3*120 + 20;
+        ctx = canvas.getContext("2d");
+
+        document.body.appendChild(canvas);
+
+        canvas.addEventListener("mousedown", mouseDown);
+        init();
+        tick();
+    }
+
+    ///////////////DISPLAYING BOARD///////////////////////////
+    function init() {
+
+        if (data == null){
+          data = [];
+          var x, y;
+          for (var i = 0; i < 9*9; i++){
+
+            if (i % 3 == 0){
+              x = (i % 9)*120/3 + 18;
+
+              if (i % 27 < 9){
+                y = Math.floor(i/9)*120/3 + 18;
+              }
+
+              else if (i % 27 < 18){
+                y = Math.floor(i/9)*120/3 + 13;
+              }
+
+              else{
+                y = Math.floor(i/9)*120/3 + 8;
+              }
+            }
+
+            else if (i % 3 == 2){
+              x = (i % 9)*120/3 + 8;
+
+              if (i % 27 < 9){
+                y = Math.floor(i/9)*120/3 + 18;
+              }
+
+              else if (i % 27 < 18){
+                y = Math.floor(i/9)*120/3 + 13;
+              }
+
+              else{
+                y = Math.floor(i/9)*120/3 + 8;
+              }
+            }
+
+            else {
+              x = (i % 9)*120/3 + 13;
+
+              if (i % 27 < 9){
+                y = Math.floor(i/9)*120/3 + 18;
+              }
+
+              else if (i % 27 < 18){
+                y = Math.floor(i/9)*120/3 + 13;
+              }
+
+              else{
+                y = Math.floor(i/9)*120/3 + 8;
+              }
+            }
+
+            new_tile = new Tile(x, y);
+          //  new_tile.tile_id = i;
+            ///////////////////////////////////////////////////
+            ///////////////////////////////////////////////////
+
+            if (i < 27){
+              if (Math.floor((i % 9)/3) == 0){
+                new_tile.zone = 0;
+                new_tile.next_zone = zones[0].length;
+                zones[0].push(i);
+              }
+              else if (Math.floor((i % 9)/3) == 1){
+                new_tile.zone = 1;
+                new_tile.next_zone = zones[1].length;
+                zones[1].push(i);
+              }
+              else{
+                new_tile.zone = 2;
+                new_tile.next_zone = zones[2].length;
+                zones[2].push(i);
+              }
+            }
+
+            else if (i < 54){
+              if (Math.floor((i % 9)/3) == 0){
+                new_tile.zone = 3;
+                new_tile.next_zone = zones[3].length;
+                zones[3].push(i);
+              }
+              else if(Math.floor((i % 9)/3) == 1){
+                new_tile.zone = 4;
+                new_tile.next_zone = zones[4].length;
+                zones[4].push(i);
+              }
+              else{
+                new_tile.zone = 5;
+                new_tile.next_zone = zones[5].length;
+                zones[5].push(i);
+              }
+            }
+
+            else{
+              if (Math.floor((i % 9)/3) == 0){
+                new_tile.zone = 6;
+                new_tile.next_zone = zones[6].length;
+                zones[6].push(i);
+              }
+              else if (Math.floor((i % 9)/3) == 1){
+                new_tile.zone = 7;
+                new_tile.next_zone = zones[7].length;
+                zones[7].push(i);
+              }
+              else{
+                new_tile.zone = 8;
+                new_tile.next_zone = zones[8].length;
+                zones[8].push(i);
+              }
+            }
+
+            data.push(new_tile);
+          }
+        }
+        console.log("Lets get started!");
+        console.log("PLAYER 1 = O's");
+        console.log("PLAYER 2 = X's");
+        console.log("Rule 1:");
+        console.log("Win 3 zones in a row to win (just like regular tic=tac=toe). Zones are labeled 1-9 moving left to right and top to bottom.");
+        console.log("Rule 2:");
+        console.log("Wherever you move within one of the smaller tic tac toe boards (zones) dictates which zone your opponent has to play in within the larger overall tic tac toe board.");
+        console.log("Rule 3:");
+        console.log("HAVE SOME FUN!!!");
+        console.log("");
+        console.log("MOVE LOG");
+
+        //data[0].flip(Tile.NOUGHT);
+        player = Tile.NOUGHT;
+    }
+///////////////////////////////////////////////////////
+
+    function tick() {
+      window.requestAnimationFrame(tick);
+
+      update();
+      render();
+    }
+
+    function update() {
+      for(var i = data.length; i--;){
+        data[i].update();
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for(var i = data.length; i--;){
+        data[i].draw(ctx);
+      }
+
+    }
+
+    function mouseDown(evt){
+
+      var el = evt.target;
+
+      var px = evt.clientX - el.offsetLeft; // evt client are mouse coordinates
+      var py = evt.clientY - el.offsetTop;
+
+      if (px % 120/3 >= 20/3 && py % 120/3 >= 20/3){// determining what to do based on mouse coordinates
+        var idx = Math.floor(px/120*3);
+        idx += Math.floor(py/120*3)*9;
+
+        // console.log(idx);
+        if (data[idx].hasData()){
+          return;
+        }
+
+        // IF VALID MOVE IS MADE
+        if (data[idx].zone == cur_zone || start_game == true){
+        //  prev_idx = cur_tile;
+        //  cur_tile = data[idx].tile_id;
+          start_game = false;
+          cur_zone = data[idx].zone;
+          console.log("Player %i made a move in zone %i", player_id, cur_zone + 1);
+          player_id = player_id === 1 ? 2 : 1;
+          data[idx].flip(player);
+          player = player === Tile.NOUGHT ? Tile.CROSS : Tile.NOUGHT;
+        //  prev_tile = prev_tile === Tile.CROSS ? Tile.NOUGHT : Tile.CROSS;
+        //  data[prev_idx].update(prev_idx, prev_tile);
+          cur_zone = data[idx].next_zone;
+          console.log("Player %i next move to be made in zone %i", player_id, cur_zone + 1);
+        }
+
+        else{
+          return;
+        }
+
+      }
+
+    }
+
+
+
+    function Tile(x, y){
+
+      var x = x, y = y;
+      var zone = -1;
+      var next_zone = -1;
+      var tile = Tile.BLANK;
+      var anim = 0;
+    //  var tile_id = -1;
+
+      if (tile == null) {
+        var _c = document.createElement("canvas"); // second canvas
+      //  var _cNew = document.createElement("canvas");
+        _c.width = _c.height = 100/3; // TILE SIZE
+      //  _cNew.width = _cNew.height = 100/3 // newest tile
+        _ctx = _c.getContext("2d");
+      //  _ctxNew = _cNew.getContext("2d");
+
+
+        _ctx.fillStyle = "skyblue";
+        _ctx.lineWidth = 4;
+        _ctx.strokeStyle = "white";
+        _ctx.lineCap = "round";
+
+        /*
+        _ctxNew.fillStyle = "skyblue";
+        _ctxNew.lineWidth = 4;
+        _ctxNew.strokeStyle = "red";
+        _ctxNew.lineCap = "round";
+
+        */
+        // Blank
+        _ctx.fillRect(0, 0, 100/3, 100/3);
+        Tile.BLANK = new Image();
+        Tile.BLANK.src = _c.toDataURL();
+
+        // O's
+        _ctx.fillRect(0, 0, 100/3, 100/3);
+
+        _ctx.beginPath();
+        _ctx.arc(50/3, 50/3, 30/3, 0, 2*Math.PI);
+        _ctx.stroke();
+
+        Tile.NOUGHT = new Image();
+        Tile.NOUGHT.src = _c.toDataURL();
+
+        // X's
+        _ctx.fillRect(0, 0, 100/3, 100/3);
+
+        _ctx.beginPath();
+        _ctx.moveTo(20/3, 20/3);
+        _ctx.lineTo(80/3, 80/3);
+        _ctx.moveTo(80/3, 20/3);
+        _ctx.lineTo(20/3, 80/3)
+        _ctx.stroke();
+
+        Tile.CROSS = new Image();
+        Tile.CROSS.src = _c.toDataURL();
+
+////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+        /*
+        // NEWEST O
+        _ctxNew.fillRect(0, 0, 100/3, 100/3);
+
+        _ctxNew.beginPath();
+        _ctxNew.arc(50/3, 50/3, 30/3, 0, 2*Math.PI);
+        _ctxNew.stroke();
+
+        Tile.NEWNOUGHT = new Image();
+        Tile.NEWNOUGHT.src = _cNew.toDataURL();
+
+        // NEWEST X
+        _ctxNew.fillRect(0, 0, 100/3, 100/3);
+
+        _ctxNew.beginPath();
+        _ctxNew.moveTo(20/3, 20/3);
+        _ctxNew.lineTo(80/3, 80/3);
+        _ctxNew.moveTo(80/3, 20/3);
+        _ctxNew.lineTo(20/3, 80/3)
+        _ctxNew.stroke();
+
+        Tile.NEWCROSS = new Image();
+        Tile.NEWCROSS.src = _cNew.toDataURL();
+        */
+        tile = Tile.BLANK;
+      }
+
+      this.hasData = function() {
+        return tile !== Tile.BLANK;
+      }
+
+      this.flip = function(next){
+
+        tile = next;
+        anim = 1;
+      }
+      this.update = function(){
+        if (anim > 0){
+          anim -= 0.02;
+        }
+        /*
+        if (prev_ind >= 0){ // UPDATING PREV TILE TO "WHITE" COLOR
+          if (tile_id == prev_ind){
+            console.log("gets here");
+            ctx.drawImage(prev, x, y);
+          }
+        }
+        */
+      }
+
+      this.draw = function(ctx){
+        if (anim <= 0){
+          ctx.drawImage(tile, x, y);
+          return;
+        }
+
+        var res = 2;
+        var t = anim > 0.5 ? Tile.BLANK : tile;
+        var p = -Math.abs(2*anim - 1) + 1; // constantly changing animation of tile
+        for (var i = 0; i < 100/3; i += res){
+
+          var j = 50/3 - (anim > 0.5 ? 100/3 - i : i);
+            // j used for better flipping
+          ctx.drawImage(t, i, 0, res, 100/3, // drawing the square in segmants
+            x + i - p*i + 50/3*p,// keys line of code to doing this/ (flipping effect)
+            y - j*p*0.2,
+            res,
+            100/3 + j*p*0.4
+          );
+        }
+
+      }
+
+    }
+    </script>
+  </head>
+  <body>
+
+  </body>
+</html>
